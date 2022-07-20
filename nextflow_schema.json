@@ -20,8 +20,8 @@
                 "count_file": {
                     "type": "string",
                     "format": "file-path",
-                    "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
+                    "mimetype": "text/tsv",
+                    "pattern": "^\\S+\\.tsv$",
                     "default": "",
                     "description": "Path to comma-separated file containing Feature (rows) x Sample (columns) expression .",
                     "help_text": "You will need to run rnaseq pipeline. The count file generated from the pipeline is given as an input along with the sample file."
@@ -176,7 +176,7 @@
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.tsv$",
+                    "pattern": "^\\S+\\.txt$",
                     "default": "",
                     "help_text": ""
                 }
