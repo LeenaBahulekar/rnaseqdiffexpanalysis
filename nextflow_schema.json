@@ -1,0 +1,253 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "rnaseq differential expression pipeline parameters",
+    "description": "Nextflow RNA-Seq differential expression analysis pipeline",
+    "type": "object",
+    "definitions": {
+        "Differential_Expression_options": {
+            "title": "Differential Expression process options",
+            "type": "object",
+            "description": "Specify the parameters to run the Differential expression process on the output of RNASeq pipeline",
+            "required": ["count_file","result_dir", "sample_info_file"],
+            "properties": {
+                "DGE_tool": {
+                    "type": "string",
+                    "description": "Tool to be used for Differential analysis",
+                    "default": "DESeq2",
+                    "enum" : ["DESeq2"],
+                    "help_text": "Supported tools are: DESeq2"
+                },
+                "count_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "default": "",
+                    "description": "Path to comma-separated file containing Feature (rows) x Sample (columns) expression .",
+                    "help_text": "You will need to run rnaseq pipeline. The count file generated from the pipeline is given as an input along with the sample file."
+                },
+                "gene_id_column": {
+                    "type": "integer",
+                    "description": "Column number in --counts_file which contains gene identifiers.",
+                    "default": 1,
+                    "help_text": "You can check the --counts_file to find the column containing the gene identifiers. Specify the number of the column here."
+                },
+                "count_column": {
+                    "type": "integer",
+                    "description": "Starting column number containing the expression data values.",
+                    "default": 3,
+                    "help_text": "You can check the expression input file to find the column containing the expression data values. Specify the number of the column here."
+                },
+                "counts_threshold": {
+                    "type": "integer",
+                    "description": "A raw count value used for pre-filtering genes",
+                    "default": 10,
+                    "help_text": "A raw count value used for pre-filtering genes; If --use_CPM_cutoff is set FALSE, then pre-filtering will be done only using --counts_threshold. In that case, only those genes which have total counts across all samples more than this value will get selected for downstream analysis. If --use_CPM_cutoff is set TRUE, a gene will considered to be expressed at biologically meaningful level in a sample if its abundance in Counts-Per-Million (CPM) unit is greater than the CPM value calculated on this raw count for the least sequenced sample. For example, if --counts_threshold is 10 and library size of least sequenced sample is 10,000,000, then biological meaningful expression level will be (10/10000000)*1000000 = 1 CPM. In such case, --sample_coverage_threshold will also be considered, e.g., if --sample_coverage_threshold is set to 0.5, then all genes with abundance value of at least 1 CPM in at least 50% samples will be considered for downstream analysis."
+                },
+                "use_CPM_cutoff": {
+                    "type": "boolean",
+                    "description": "Whether a cutoff calculated on --counts_threshold and library size of the least sequenced. Sample will be used for pre-filtering on counts data. Already described above.",
+                    "default": true,
+                    "help_text": ""
+                },
+                "sample_coverage_threshold": {
+                    "type": "number",
+                    "description": "A feature will be discarded if not abundant at biologically meaningful level in at least this fraction of samples. This is applicable only when --use_CPM_cutoff is set TRUE. Range: 0.0 - 1.0;",
+                    "default": 0.5,
+                    "help_text": ""
+                },
+                "normalization_method": {
+                    "type": "string",
+                    "description": "Supported methods are:  DESeq2-median-of-ratios.",
+                    "default": "DESeq2-median-of-ratios",
+                    "help_text": ""
+                },
+                "pseudocounts": {
+                    "type": "integer",
+                    "description": "It is a positive constant to avoid taking log of 0 or any negative values. Useful across data filter, normalization and transformation steps.",
+                    "default": 0,
+                    "help_text": ""
+                },
+                "sample_info_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "description": "A sample metadata file (in TSV/CSV) with list of samples of interest.",
+                    "help_text": "The sample file used for rnaseq processing is to be provided here."
+                },
+                "sample_id_column": {
+                    "type": "integer",
+                    "description": "Column number for sample ids.",
+                    "default": 1,
+                    "help_text": "The sample file used for rnaseq processing is to checked and the column number containing the sample ids is to be provided."
+                },
+                "primary_factor_column": {
+                    "type": "integer",
+                    "description": "Column number for the primary factor of interest such as sample conditions/groups.",
+                    "default": 5,
+                    "help_text": ""
+                },
+                "contrasts":{
+                     "type": "string",
+                     "description": "Comma separated list of contrasts for DGE in the defined format: cond2_vs_cond1.",
+                     "default": "all",
+                     "help_text": "Comma separated list of contrasts for DGE in the defined format: cond2_vs_cond1 where cond1 and cond2 should be values from primary_factor_column. Applicable only for pairwise DGE analysis such as Wald test from DESeq2. With value as all, all pair wise combinations will be considered"
+                },
+                "other_known_factors_columns": {
+                     "type": "string",
+                     "description": "Comma separated list of column numbers of sample_info_file which can act as other possible source of variation in gene expression.",
+                     "default": "",
+                     "help_text": ""
+                },
+                "full_design": {
+                    "type": "string",
+                    "description": "Design formula for full model. ",
+                    "default": "",
+                    "help_text": "If defined, it will get preference over --primary_factor_column and --other_known_factors_columns. If not provided, it will be defined based on both parameters, e.g., '~ genotype + condition'. Interaction terms are supported, so user can specify something like '~ condition + time + condition:time'."
+                },
+                "reduced_design": {
+                    "type": "string",
+                    "description": "Design formula for reduced model.",
+                    "default": "",
+                    "help_text": "Design formula for reduced model. If defined, it will get preference over --other_known_factors_columns. If not provided, it will be defined based on --other_known_factors_columns, e.g., '~ genotype'."
+                },
+                "DESeq2_dispersion_method": {
+                    "type": "string",
+                    "description": "Method to estimate dispersion such as parametric/local/mean/glmGamPoi.",
+                    "default": "parametric",
+                    "enum": ["parametric", "local", "mean", "glmGamPoi"],
+                    "help_text": ""
+                },
+                "DESeq2_test_type": {
+                    "type": "string",
+                    "description": "Type of statistical test such as Wald/LRT.",
+                    "default": "Wald",
+                    "enum": ["Wald", "LRT"],
+                    "help_text": ""
+                },
+                "stat_sig_measure": {
+                    "type": "string",
+                    "description": "Type of measurement for statistical significance level",
+                    "default": "padj",
+                    "help_text": "Type of measurement for statistical significance level, pvalue, padj or svalue. svalue is only applicable for --DESeq2_test_type = Wald."
+                },
+                "stat_cutoff": {
+                    "type": "string",
+                    "description": "Cutoff for calling differentially expressed genes. Comma-separated if multiple.",
+                    "default": "0.05",
+                    "help_text": ""
+                },
+                "log2_fold_change_cutoff": {
+                    "type": "string",
+                    "description": "log2-fold-change cutoff for calling differentially expressed genes.",
+                    "default": "1",
+                    "help_text": "log2-fold-change cutoff for calling differentially expressed genes. Applicable only for DESeq2_test_type = Wald. Comma-separated values if multiple."
+                },
+                "top_n_for_viz": {
+                    "type": "string",
+                    "description": "n most variable genes to be considered for generating following plots",
+                    "default": "",
+                    "help_text": ""
+                },
+                "result_dir": {
+                    "type": "string",
+                    "description": "Directory path where the results of the pipeline need to be published",
+                    "default": "",
+                    "help_text": "Provide an S3 path where you would like to store the results of the entire pipeline"
+                }
+            }
+        },
+        "Gene_Drug_options": {
+            "title": "Gene Drug options",
+            "type": "object",
+            "description": "Specify the parameters to run the Gene Drug Analysis on the output of Differential Expression in the pipeline",
+            "required": ["ppi_file", "drug_target_file"],
+            "properties": {
+                "ppi_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "default": "",
+                    "help_text": ""
+                },
+                "drug_target_file": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.tsv$",
+                    "default": "",
+                    "help_text": ""
+                }
+
+            }
+        },
+        "Pathway_Enrichment_options": {
+            "title": "Pathway Enrichment options",
+            "type": "object",
+            "description": "Specify the parameters to run the Pathway Enrichment on the output of Differential Expression in the pipeline",
+            "default": "",
+            "properties": {
+                "species": {
+                    "type": "string",
+                    "description": "Name of the species.",
+                    "default": "Homo sapiens",
+                    "help_text": "This will be used to retrieve species-specific annotation data sources for enrichment analysis. Currently only tested for following: Homo sapiens."
+                },
+                "data_sources": {
+                    "type": "string",
+                    "description": "Comma separated list of data sources for analysis",
+                    "default": "all",
+                    "help_text": "Datasources such as such as MSigDBHallmarks,MSigDBOncogenic,MSigDBImmunologic,DO,NCG,DisGeNET,GOBP,GOCC,GOMF,KEGG,Reactome can be provided."
+                },
+                "run_SPIA": {
+                    "type": "boolean",
+                    "description": "Whether to run SPIA. It requires --log2fc_column.",
+                    "default": true,
+                    "help_text": ""
+                },
+                "threshold": {
+                    "type": "number",
+                    "description": "A numerical threshold (between 0 and 1) on p.adjust to infer geneset/pathway significance.",
+                    "default": 0.1,
+                    "help_text": ""
+                },
+                "pathway_output_prefix": {
+                    "type": "string",
+                    "description": "Prefix for Pathway Enrichment output files.",
+                    "default": "PE",
+                    "help_text": ""
+                }
+            }
+        },
+        "Annotation_Open_Target_options": {
+            "title": "Annotation Open Target options",
+            "type": "object",
+            "description": "Specify the parameters to run the Annotation using Open Target on the output of Differential Expression in the pipeline",
+            "default": "",
+            "properties": {
+                "annotation_output_prefix": {
+                    "type": "string",
+                    "description": "Prefix for  Annotation using Open Target output files.",
+                    "default": "AOT",
+                    "help_text": ""
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/Differential_Expression_options"
+        },
+        {
+            "$ref": "#/definitions/Gene_Drug_options"
+        },
+        {
+            "$ref": "#/definitions/Pathway_Enrichment_options"
+        },
+        {
+            "$ref": "#/definitions/Annotation_Open_Target_options"
+        }
+    ]
+}
