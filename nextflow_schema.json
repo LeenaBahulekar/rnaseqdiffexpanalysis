@@ -8,7 +8,7 @@
             "title": "Differential Expression process options",
             "type": "object",
             "description": "Specify the parameters to run the Differential expression process on the output of RNASeq pipeline",
-            "required": ["count_file","result_dir", "sample_info_file"],
+            "required": ["count_file","outdir", "sample_info_file"],
             "properties": {
                 "DGE_tool": {
                     "type": "string",
@@ -150,7 +150,7 @@
                     "default": "",
                     "help_text": ""
                 },
-                "result_dir": {
+                "outdir": {
                     "type": "string",
                     "description": "Directory path where the results of the pipeline need to be published",
                     "default": "",

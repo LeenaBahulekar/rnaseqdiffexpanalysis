@@ -2,7 +2,7 @@ process ANNOTATION_OPEN_TARGET {
 	container 'leenab/diff-expression:04'
 	memory '32 GB'
 	echo true
-	publishDir "${params.result_dir}/${diff_exp_dir}/annotation_open_target", mode:'copy', overwrite: true
+	publishDir "${params.outdir}/${diff_exp_dir}/annotation_open_target", mode:'copy', overwrite: true
 
 	input:
 		tuple val(diff_exp_dir), path ('diff_exp_cnt.csv')

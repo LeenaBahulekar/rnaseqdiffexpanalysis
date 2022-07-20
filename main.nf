@@ -30,9 +30,9 @@ workflow RNASEQ_DIFF_EXP_ANALYSIS {
 	ip_sample_info_file = Channel.fromPath(params.sample_info_file, checkIfExists: true)
 
 	//validate that the final result dir is not NULL
-	if (!params.result_dir) {
-	    println "Result dir cannot be empty"
-	    log.error "Result dir cannot be empty"
+	if (!params.outdir) {
+	    println "outdir cannot be empty"
+	    log.error "outdir cannot be empty"
 	    System.exit(1)
 	}
 

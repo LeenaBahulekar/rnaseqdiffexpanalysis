@@ -2,7 +2,7 @@ process DIFF_EXP {
 	container 'leenab/diff-expression:04'
 	memory '32 GB'
 	echo true
-	publishDir "${params.result_dir}", mode:'copy', overwrite: true
+	publishDir "${params.outdir}", mode:'copy', overwrite: true
 
 	input:
 		path 'count.csv'
